@@ -1,0 +1,22 @@
+version: "3.4"
+
+x-app:
+  &default-app
+  image: duper_img:latest
+  volumes:
+    - ./:/app
+
+services:
+  app:
+    <<: *default-app
+    build:
+      context: .
+    environment:
+      MIX_ENV: dev
+    command: ["iex", "-S", "mix"]
+
+  test:
+    <<: *default-app
+    environment:
+      MIX_ENV: test
+    command: ["mix", "test"]
