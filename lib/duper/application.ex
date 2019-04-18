@@ -14,9 +14,9 @@ defmodule Duper.Application do
   def start(_type, _args) do
     children = [
         Duper.Results,
-      { Duper.PathFinder,       "/Users/dave/Pictures" },
+      { Duper.PathFinder,       Application.get_env(:duper, :root_path) },
         Duper.WorkerSupervisor,
-      { Duper.Gatherer,         1 },
+      { Duper.Gatherer,         2 },
     ]
 
     opts = [strategy: :one_for_all, name: Duper.Supervisor]
