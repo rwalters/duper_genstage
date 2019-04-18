@@ -9,17 +9,37 @@
 defmodule Duper.Application do
   @moduledoc false
 
+  require Logger
   use Application
 
+  alias Duper.{Gatherer, PathFinder, Results, Worker}
+
   def start(_type, _args) do
+    Logger.debug("---- Application Starting ----")
+    import Supervisor.Spec
+
+    opts = [strategy: :one_for_one, name: Duper.GatherSupervisor]
+    start_result = Supervisor.start_link([ Gatherer ], opts)
+    Logger.debug(inspect(start_result))
+
     children = [
-        Duper.Results,
-      { Duper.PathFinder,       Application.get_env(:duper, :root_path) },
-        Duper.WorkerSupervisor,
-      { Duper.Gatherer,         2 },
+      Results,
+      { PathFinder, Application.get_env(:duper, :root_path) },
     ]
 
     opts = [strategy: :rest_for_one, name: Duper.Supervisor]
-    Supervisor.start_link(children, opts)
+    start_result = Supervisor.start_link(children, opts)
+    Logger.debug(inspect(start_result))
+
+    children = [
+      worker(Worker, [], id: 1),
+      worker(Worker, [], id: 2),
+    ]
+
+    opts = [strategy: :rest_for_one, name: Duper.GenStageWorkerSupervisor]
+    start_result = Supervisor.start_link(children, opts)
+    Logger.debug(inspect(start_result))
+
+    {:ok, self()}
   end
 end

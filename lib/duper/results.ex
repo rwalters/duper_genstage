@@ -7,7 +7,7 @@
 # Visit http://www.pragmaticprogrammer.com/titles/elixir16 for more book information.
 #---
 defmodule Duper.Results do
-
+  require Logger
   use GenServer
 
   @me __MODULE__
@@ -30,10 +30,13 @@ defmodule Duper.Results do
   # Server
 
   def init(:no_args) do
+    Logger.debug("#{__MODULE__} Starting")
+
     { :ok, %{} }
   end
 
   def handle_cast({ :add, path, hash }, results) do
+    Logger.debug("add result")
     results =
       Map.update(
         results,          # look in this map
@@ -46,6 +49,7 @@ defmodule Duper.Results do
   end
 
   def handle_call(:find_duplicates, _from, results) do
+    Logger.debug("find dupes")
     {
       :reply,
       hashes_with_more_than_one_path(results),

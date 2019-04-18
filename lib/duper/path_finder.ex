@@ -7,6 +7,7 @@
 # Visit http://www.pragmaticprogrammer.com/titles/elixir16 for more book information.
 #---
 defmodule Duper.PathFinder do
+  require Logger
   use GenStage
 
   @me PathFinder
@@ -15,11 +16,18 @@ defmodule Duper.PathFinder do
     GenStage.start_link(__MODULE__, root, name: @me)
   end
 
+  @impl true
   def init(path) do
-    {:producer, DirWalker.start_link(path)}
+    Logger.debug("#{__MODULE__} Starting")
+
+    {:ok, dir_walker} = DirWalker.start_link(path)
+
+    {:producer, dir_walker}
   end
 
+  @impl true
   def handle_demand(demand, dir_walker) when demand > 0 do
+    Logger.debug("-> handle_demand <-")
     paths = DirWalker.next(dir_walker, demand)
 
     {:noreply, paths, dir_walker}

@@ -1,3 +1,4 @@
 %{
   "dir_walker": {:hex, :dir_walker, "0.0.7", "c994ef96ce5a303348871548aeeb5581e9dc82d6ac0f5e4351d8cbd4bcead0f6", [:mix], [], "hexpm"},
+  "gen_stage": {:hex, :gen_stage, "0.14.1", "9d46723fda072d4f4bb31a102560013f7960f5d80ea44dcb96fd6304ed61e7a4", [:mix], [], "hexpm"},
 }

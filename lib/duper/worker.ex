@@ -7,21 +7,32 @@
 # Visit http://www.pragmaticprogrammer.com/titles/elixir16 for more book information.
 #---
 defmodule Duper.Worker do
-  use GenServer, restart: :transient
+  require Logger
+
+  use GenStage, restart: :transient
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, :no_args)
+    GenStage.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
+  def start_link(), do: start_link(:ok)
 
 
+  @impl true
   def init(:no_args) do
-    Process.send_after(self(), :do_one_file, 0)
-    { :ok, nil }
+    Logger.debug("#{__MODULE__} Starting")
+
+    {:consumer, :ok, subscribe_to: [PathFinder]}
   end
 
-  def handle_info(:do_one_file, _) do
-    Duper.PathFinder.next_path()
-    |> add_result()
+  @impl true
+  def handle_events(paths, _from, state) do
+    Logger.debug("-> handle_events <-\n#{inspect(paths)}\n#{inspect(state)}")
+    for path <- paths do
+      path
+      |> add_result()
+    end
+
+    {:noreply, [], state}
   end
 
   defp add_result(nil) do
@@ -31,8 +42,8 @@ defmodule Duper.Worker do
 
   defp add_result(path) do
     Duper.Gatherer.result(path, hash_of_file_at(path))
-    send(self(), :do_one_file)
-    { :noreply, nil }
+
+    { :noreply, [] }
   end
 
   defp hash_of_file_at(path) do
