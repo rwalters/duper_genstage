@@ -28,7 +28,8 @@ defmodule Duper.MixProject do
 
   defp deps do
     [
-      dir_walker: "~> 0.0.7",
+      {dir_walker: "~> 0.0.7"},
+      {gen_stage: "~> 0.14"},
     ]
   end
 end

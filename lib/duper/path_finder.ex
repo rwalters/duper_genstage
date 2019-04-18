@@ -7,30 +7,21 @@
 # Visit http://www.pragmaticprogrammer.com/titles/elixir16 for more book information.
 #---
 defmodule Duper.PathFinder do
-  use GenServer
+  use GenStage
 
   @me PathFinder
-  
+
   def start_link(root) do
-    GenServer.start_link(__MODULE__, root, name: @me)
+    GenStage.start_link(__MODULE__, root, name: @me)
   end
-
-  def next_path() do
-    GenServer.call(@me, :next_path)
-  end
-
 
   def init(path) do
-    DirWalker.start_link(path)
+    {:producer, DirWalker.start_link(path)}
   end
 
-  def handle_call(:next_path, _from, dir_walker) do
-    path = case DirWalker.next(dir_walker) do
-             [ path ] -> path
-             other    -> other
-           end
-    
-    { :reply, path, dir_walker }
+  def handle_demand(demand, dir_walker) when demand > 0 do
+    paths = DirWalker.next(dir_walker, demand)
+
+    {:noreply, paths, dir_walker}
   end
-  
 end

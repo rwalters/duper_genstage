@@ -9,12 +9,12 @@
 defmodule Duper.Results do
 
   use GenServer
-  
+
   @me __MODULE__
 
 
   # API
-  
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, :no_args, name: @me)
   end
@@ -28,14 +28,13 @@ defmodule Duper.Results do
   end
 
   # Server
-  
+
   def init(:no_args) do
     { :ok, %{} }
   end
-  
 
   def handle_cast({ :add, path, hash }, results) do
-    results = 
+    results =
       Map.update(
         results,          # look in this map
         hash,             # for an entry with key
@@ -45,7 +44,7 @@ defmodule Duper.Results do
         end)
     { :noreply, results }
   end
-  
+
   def handle_call(:find_duplicates, _from, results) do
     {
       :reply,
@@ -59,5 +58,4 @@ defmodule Duper.Results do
     |> Enum.filter(fn { _hash, paths } -> length(paths) > 1 end)
     |> Enum.map(&elem(&1, 1))
   end
-
 end
