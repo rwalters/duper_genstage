@@ -29,7 +29,7 @@ defmodule Duper.MixProject do
   defp deps do
     [
       {:dir_walker, "~> 0.0.7"},
-      {:gen_stage,  "~> 0.14"},
+      {:broadway, "~> 0.1.0"},
     ]
   end
 end

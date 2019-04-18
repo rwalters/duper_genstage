@@ -23,4 +23,25 @@ defmodule Duper do
   def hello do
     :world
   end
+
+  def start_link(opts) do
+    Logger.info("#{__MODULE__} Starting")
+
+    Broadway.start_link(__MODULE__,
+      name: __MODULE__,
+      producers: [
+        default: [
+          module: {Duper.Pathfinder, opts},
+          stages: 1,
+          transformer: {__MODULE__, :transform, []},
+        ]
+      ],
+      processors: [
+        default: [stages: 10],
+      ],
+      batchers: [
+        kafka: [stages: 2, batch_size: 100],
+      ]
+    )
+  end
 end
