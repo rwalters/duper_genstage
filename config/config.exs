@@ -31,7 +31,7 @@ use Mix.Config
 
 config :logger, backends: [:console]
 config :logger, :console,
-  level: :info,
+  level: :debug,
   format: "[$level] $levelpad$dateT$time\n  $metadata\n  $message\n",
   metadata: [:function, :file, :line]
 

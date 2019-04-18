@@ -11,6 +11,10 @@ defmodule Duper do
   Documentation for Duper.
   """
 
+  require Logger
+  use Broadway
+  alias Broadway.Message
+
   @doc """
   Hello world.
 
@@ -40,8 +44,35 @@ defmodule Duper do
         default: [stages: 10],
       ],
       batchers: [
-        kafka: [stages: 2, batch_size: 100],
+        default: [stages: 2, batch_size: 100],
       ]
     )
+  end
+
+  def handle_message(_processor_name, path, _context) do
+    path
+    |> Message.update_data(&process_data/1)
+    |> Message.put_batcher(:s3)
+  end
+
+  def handle_batch(:default, messages, _batch_info, _context) do
+    IO.inspect(messages)
+  end
+
+  def transform(event, _opts) do
+    %Message{
+      data: event,
+      acknowledger: {__MODULE__, :ack_id, :ack_data}
+    }
+  end
+
+  def process_data(path) do
+    File.stream!(path, [], 1024*1024)
+    |> Enum.reduce(
+      :crypto.hash_init(:md5),
+      fn (block, hash) ->
+        :crypto.hash_update(hash, block)
+      end)
+    |> :crypto.hash_final()
   end
 end

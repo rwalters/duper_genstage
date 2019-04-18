@@ -12,7 +12,7 @@ defmodule Duper.Application do
   require Logger
   use Application
 
-  alias Duper.{Gatherer, PathFinder, Results, Worker}
+  alias Duper.{Gatherer, Results, Worker}
 
   def start(_type, _args) do
     Logger.debug("---- Application Starting ----")
@@ -24,7 +24,7 @@ defmodule Duper.Application do
 
     children = [
       Results,
-      { PathFinder, Application.get_env(:duper, :root_path) },
+      { Duper, Application.get_env(:duper, :root_path) },
     ]
 
     opts = [strategy: :rest_for_one, name: Duper.Supervisor]
