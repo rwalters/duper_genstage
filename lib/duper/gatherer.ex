@@ -8,54 +8,21 @@
 #---
 defmodule Duper.Gatherer do
   require Logger
-  use GenServer
 
-  @me Gatherer
-
-  # api
+  @server Duper.Gatherer.Server
 
   def start_link(worker_count) do
-    GenServer.start_link(__MODULE__, worker_count, name: @me)
+    GenServer.start_link(@server, worker_count, name: @server)
   end
 
   def done() do
-    GenServer.cast(@me, :done)
+    GenServer.cast(@server, :done)
   end
 
   def result(path, hash) do
-    GenServer.cast(@me, { :result, path, hash })
+    GenServer.cast(@server, { :result, path, hash })
   end
 
-  # server
-
-  def init(worker_count) do
-    Logger.debug("#{__MODULE__} Starting")
-
-    # Process.send_after(self(), :kickoff, 0)
-    { :ok, worker_count }
-  end
-
-  def handle_cast(:done, _worker_count = 1) do
-    Logger.debug("...one worker left")
-    report_results()
-    System.halt(0)
-  end
-
-  def handle_cast(:done, worker_count) do
-    Logger.debug("...processing workers")
-    { :noreply, worker_count - 1 }
-  end
-
-  def handle_cast({:result, path, hash}, worker_count) do
-    Logger.debug("handle results")
-    Duper.Results.add_hash_for(path, hash)
-    { :noreply, worker_count }
-  end
-
-  defp report_results() do
-    Logger.debug("report results")
-    IO.puts "Results:\n"
-    Duper.Results.find_duplicates()
-    |> Enum.each(&IO.inspect/1)
-  end
+  # server has been MOVED
+  # It is now in Gatherer.Server
 end
