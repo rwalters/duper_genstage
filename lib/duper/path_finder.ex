@@ -12,13 +12,13 @@ defmodule Duper.PathFinder do
 
   @me PathFinder
 
-  def start_link(root) do
+  def start_link(root \\ Application.get_env(:duper, :root_path)) do
     GenStage.start_link(__MODULE__, root, name: @me)
   end
 
   @impl true
   def init(path) do
-    Logger.debug("#{__MODULE__} Starting")
+    Logger.debug("#{__MODULE__} Starting with path #{inspect(path)}")
 
     {:ok, dir_walker} = DirWalker.start_link(path)
 
