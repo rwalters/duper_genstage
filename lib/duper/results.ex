@@ -16,6 +16,7 @@ defmodule Duper.Results do
   # API
 
   def start_link(_) do
+    Logger.debug("#{__MODULE__} Starting")
     GenServer.start_link(__MODULE__, :no_args, name: @me)
   end
 
@@ -36,7 +37,7 @@ defmodule Duper.Results do
   end
 
   def handle_cast({ :add, path, hash }, results) do
-    Logger.debug("add result")
+    Logger.debug("add path: #{inspect(path)}")
     results =
       Map.update(
         results,          # look in this map

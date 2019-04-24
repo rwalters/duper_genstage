@@ -12,7 +12,7 @@ defmodule Duper.Worker do
   use GenStage, restart: :transient
 
   def start_link(_) do
-    GenStage.start_link(__MODULE__, :no_args, name: __MODULE__)
+    GenStage.start_link(__MODULE__, :no_args)
   end
   def start_link(), do: start_link(:ok)
 
@@ -26,7 +26,7 @@ defmodule Duper.Worker do
 
   @impl true
   def handle_events(paths, _from, state) do
-    Logger.debug("-> handle_events <-\n#{inspect(paths)}\n#{inspect(state)}")
+    Logger.debug("-> handle_events <-\n#{inspect(paths)}\n#{inspect(state)}\n")
     for path <- paths do
       path
       |> add_result()
@@ -36,11 +36,13 @@ defmodule Duper.Worker do
   end
 
   defp add_result(nil) do
+    Logger.info("-> add_result <-\ndone")
     Duper.Gatherer.done()
     {:stop, :normal, nil}
   end
 
   defp add_result(path) do
+    Logger.debug("-> add_result <-\n#{inspect(path)}")
     Duper.Gatherer.result(path, hash_of_file_at(path))
 
     { :noreply, [] }

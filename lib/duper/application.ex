@@ -18,6 +18,7 @@ defmodule Duper.Application do
     Logger.debug("---- Application Starting ----")
     import Supervisor.Spec
 
+    Logger.debug("Starting Gatherer")
     opts = [strategy: :one_for_one, name: Duper.GatherSupervisor]
     start_result = Supervisor.start_link([ Gatherer ], opts)
     Logger.debug(inspect(start_result))
@@ -27,6 +28,7 @@ defmodule Duper.Application do
       { PathFinder, Application.get_env(:duper, :root_path) },
     ]
 
+    Logger.debug("Starting #{inspect(children)}")
     opts = [strategy: :rest_for_one, name: Duper.Supervisor]
     start_result = Supervisor.start_link(children, opts)
     Logger.debug(inspect(start_result))
@@ -36,6 +38,7 @@ defmodule Duper.Application do
       worker(Worker, [], id: 2),
     ]
 
+    Logger.debug("Starting #{inspect(children)}")
     opts = [strategy: :rest_for_one, name: Duper.GenStageWorkerSupervisor]
     start_result = Supervisor.start_link(children, opts)
     Logger.debug(inspect(start_result))

@@ -27,7 +27,7 @@ defmodule Duper.PathFinder do
 
   @impl true
   def handle_demand(demand, dir_walker) when demand > 0 do
-    Logger.debug("-> handle_demand <-")
+    Logger.debug("-> handle_demand <-\n  #{inspect(demand)}")
     paths = DirWalker.next(dir_walker, demand)
 
     {:noreply, paths, dir_walker}
