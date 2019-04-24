@@ -9,50 +9,10 @@
 defmodule Duper.Worker do
   require Logger
 
-  use GenStage, restart: :transient
+  @server Duper.Worker.Server
 
   def start_link(_) do
-    GenStage.start_link(__MODULE__, :no_args, name: __MODULE__)
+    GenStage.start_link(@server, :no_args, name: @server)
   end
   def start_link(), do: start_link(:ok)
-
-
-  @impl true
-  def init(:no_args) do
-    Logger.debug("#{__MODULE__} Starting")
-
-    {:consumer, :ok, subscribe_to: [PathFinder]}
-  end
-
-  @impl true
-  def handle_events(paths, _from, state) do
-    Logger.debug("-> handle_events <-\n#{inspect(paths)}\n#{inspect(state)}")
-    for path <- paths do
-      path
-      |> add_result()
-    end
-
-    {:noreply, [], state}
-  end
-
-  defp add_result(nil) do
-    Duper.Gatherer.done()
-    {:stop, :normal, nil}
-  end
-
-  defp add_result(path) do
-    Duper.Gatherer.result(path, hash_of_file_at(path))
-
-    { :noreply, [] }
-  end
-
-  defp hash_of_file_at(path) do
-    File.stream!(path, [], 1024*1024)
-    |> Enum.reduce(
-      :crypto.hash_init(:md5),
-      fn (block, hash) ->
-        :crypto.hash_update(hash, block)
-      end)
-    |> :crypto.hash_final()
-  end
 end
