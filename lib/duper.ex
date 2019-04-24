@@ -29,7 +29,7 @@ defmodule Duper do
   end
 
   def start_link(opts) do
-    Logger.info("#{__MODULE__} Starting")
+    Logger.debug("#{__MODULE__} Starting -- #{inspect(opts)}")
 
     Broadway.start_link(__MODULE__,
       name: __MODULE__,
@@ -50,29 +50,26 @@ defmodule Duper do
   end
 
   def handle_message(_processor_name, path, _context) do
+    Logger.debug(" -> handle_message: #{path} <- ")
     path
     |> Message.update_data(&process_data/1)
-    |> Message.put_batcher(:s3)
+    |> Message.put_batcher(:default)
   end
 
   def handle_batch(:default, messages, _batch_info, _context) do
     IO.inspect(messages)
   end
 
-  def transform(event, _opts) do
+  def transform(path, _opts) do
+    Logger.debug(" -> transform: #{path} <- ")
     %Message{
-      data: event,
+      data: path,
       acknowledger: {__MODULE__, :ack_id, :ack_data}
     }
   end
 
   def process_data(path) do
-    File.stream!(path, [], 1024*1024)
-    |> Enum.reduce(
-      :crypto.hash_init(:md5),
-      fn (block, hash) ->
-        :crypto.hash_update(hash, block)
-      end)
-    |> :crypto.hash_final()
+    Logger.debug(" -> process_data: #{path} <- ")
+    %{Duper.Worker.Impl.hash_of_file_at(path) => path }
   end
 end
