@@ -12,31 +12,14 @@ defmodule Duper.Application do
   require Logger
   use Application
 
-  alias Duper.{Gatherer, Results, Worker}
-
   def start(_type, _args) do
     Logger.debug("---- Application Starting ----")
-    import Supervisor.Spec
-
-    opts = [strategy: :one_for_one, name: Duper.GatherSupervisor]
-    start_result = Supervisor.start_link([ Gatherer ], opts)
-    Logger.debug(inspect(start_result))
 
     children = [
-      Results,
-      { Duper, Application.get_env(:duper, :root_path) },
+      { Duper, [] },
     ]
 
-    opts = [strategy: :rest_for_one, name: Duper.Supervisor]
-    start_result = Supervisor.start_link(children, opts)
-    Logger.debug(inspect(start_result))
-
-    children = [
-      worker(Worker, [], id: 1),
-      worker(Worker, [], id: 2),
-    ]
-
-    opts = [strategy: :rest_for_one, name: Duper.GenStageWorkerSupervisor]
+    opts = [strategy: :one_for_one, name: Duper.Supervisor]
     start_result = Supervisor.start_link(children, opts)
     Logger.debug(inspect(start_result))
 
