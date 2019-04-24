@@ -9,18 +9,19 @@
 
 defmodule Duper.ResultsTest do
   use ExUnit.Case
-  alias Duper.Results
+  alias Duper.Results.Impl, as: Results
 
   test "can add entries to the results" do
 
-    Results.add_hash_for("path1", 123)
-    Results.add_hash_for("path2", 456)
-    Results.add_hash_for("path3", 123)
-    Results.add_hash_for("path4", 789)
-    Results.add_hash_for("path5", 456)
-    Results.add_hash_for("path6", 999)
+    results = %{}
+    results = results |> Results.update_results(123, "path1")
+    results = results |> Results.update_results(456, "path2")
+    results = results |> Results.update_results(123, "path3")
+    results = results |> Results.update_results(789, "path4")
+    results = results |> Results.update_results(456, "path5")
+    results = results |> Results.update_results(999, "path6")
 
-    duplicates = Results.find_duplicates()
+    duplicates = Results.duplicate_files(results)
 
     assert length(duplicates) == 2
 
